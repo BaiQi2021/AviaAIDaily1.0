@@ -263,6 +263,7 @@ class AppContext:
         mode: str = "daily",
         is_daily_summary: bool = False,
         update_info: Optional[Dict] = None,
+        summary: str = "",
     ) -> str:
         """生成HTML报告"""
         return generate_html_report(
@@ -282,6 +283,7 @@ class AppContext:
             matches_word_groups_func=self.matches_word_groups,
             load_frequency_words_func=self.load_frequency_words,
             enable_index_copy=True,
+            summary=summary,
         )
 
     def render_html(
@@ -291,6 +293,7 @@ class AppContext:
         is_daily_summary: bool = False,
         mode: str = "daily",
         update_info: Optional[Dict] = None,
+        summary: str = "",
     ) -> str:
         """渲染HTML内容"""
         return render_html_content(
@@ -301,6 +304,7 @@ class AppContext:
             update_info=update_info,
             reverse_content_order=self.config.get("REVERSE_CONTENT_ORDER", False),
             get_time_func=self.get_time,
+            summary=summary,
         )
 
     # === 通知内容渲染 ===

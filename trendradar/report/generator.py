@@ -154,6 +154,7 @@ def generate_html_report(
     matches_word_groups_func: Optional[Callable] = None,
     load_frequency_words_func: Optional[Callable] = None,
     enable_index_copy: bool = True,
+    summary: str = "",
 ) -> str:
     """
     生成 HTML 报告
@@ -175,6 +176,7 @@ def generate_html_report(
         matches_word_groups_func: 词组匹配函数
         load_frequency_words_func: 加载频率词函数
         enable_index_copy: 是否复制到 index.html
+        summary: LLM 总结内容
 
     Returns:
         str: 生成的 HTML 文件路径
@@ -209,7 +211,7 @@ def generate_html_report(
     # 渲染 HTML 内容
     if render_html_func:
         html_content = render_html_func(
-            report_data, total_titles, is_daily_summary, mode, update_info
+            report_data, total_titles, is_daily_summary, mode, update_info, summary=summary
         )
     else:
         # 默认简单 HTML

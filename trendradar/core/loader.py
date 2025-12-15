@@ -272,6 +272,18 @@ def _print_notification_sources(config: Dict) -> None:
         print("未配置任何通知渠道")
 
 
+def _load_llm_config(config_data: Dict) -> Dict:
+    """加载 LLM 配置"""
+    llm_config = config_data.get("llm", {})
+    return {
+        "ENABLED": _get_env_bool("LLM_ENABLED") or llm_config.get("enabled", False),
+        "PROVIDER": _get_env_str("LLM_PROVIDER") or llm_config.get("provider", "deepseek"),
+        "API_KEY": _get_env_str("LLM_API_KEY") or llm_config.get("api_key", ""),
+        "BASE_URL": _get_env_str("LLM_BASE_URL") or llm_config.get("base_url", "https://api.deepseek.com"),
+        "MODEL": _get_env_str("LLM_MODEL") or llm_config.get("model", "deepseek-chat"),
+    }
+
+
 def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
     """
     加载配置文件
@@ -322,6 +334,9 @@ def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
 
     # 存储配置
     config["STORAGE"] = _load_storage_config(config_data)
+
+    # LLM 配置
+    config["LLM"] = _load_llm_config(config_data)
 
     # Webhook 配置
     config.update(_load_webhook_config(config_data))

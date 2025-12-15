@@ -20,6 +20,7 @@ def render_html_content(
     *,
     reverse_content_order: bool = False,
     get_time_func: Optional[Callable[[], datetime]] = None,
+    summary: str = "",
 ) -> str:
     """渲染HTML内容
 
@@ -31,6 +32,7 @@ def render_html_content(
         update_info: 更新信息（可选）
         reverse_content_order: 是否反转内容顺序（新增热点在前）
         get_time_func: 获取当前时间的函数（可选，默认使用 datetime.now）
+        summary: LLM 总结内容
 
     Returns:
         渲染后的 HTML 字符串
@@ -296,6 +298,46 @@ def render_html_content(
                 text-decoration: underline;
             }
 
+            .summary-section {
+                background: #f0f9ff;
+                border: 1px solid #bae6fd;
+                border-radius: 8px;
+                padding: 16px;
+                margin-bottom: 24px;
+            }
+
+            .summary-title {
+                font-size: 16px;
+                font-weight: 600;
+                color: #0369a1;
+                margin-bottom: 12px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .summary-content {
+                font-size: 14px;
+                color: #334155;
+                line-height: 1.6;
+            }
+            
+            .summary-content h3 {
+                font-size: 15px;
+                font-weight: 600;
+                color: #0f172a;
+                margin: 12px 0 8px 0;
+            }
+            
+            .summary-content ul {
+                margin: 0;
+                padding-left: 20px;
+            }
+            
+            .summary-content li {
+                margin-bottom: 4px;
+            }
+
             .news-link:visited {
                 color: #7c3aed;
             }
@@ -408,6 +450,31 @@ def render_html_content(
                 padding: 2px 0;
                 font-family: 'SF Mono', Consolas, monospace;
             }
+            
+            /* Markdown 样式 */
+            .markdown-body {
+                font-size: 14px;
+                line-height: 1.6;
+            }
+            .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+                margin-top: 16px;
+                margin-bottom: 8px;
+                font-weight: 600;
+            }
+            .markdown-body p {
+                margin-bottom: 8px;
+            }
+            .markdown-body ul, .markdown-body ol {
+                padding-left: 20px;
+                margin-bottom: 8px;
+            }
+            .markdown-body li {
+                margin-bottom: 4px;
+            }
+            .markdown-body strong {
+                font-weight: 600;
+                color: #0f172a;
+            }
 
             .footer {
                 margin-top: 32px;
@@ -465,6 +532,7 @@ def render_html_content(
                 }
             }
         </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     </head>
     <body>
         <div class="container">
@@ -540,6 +608,25 @@ def render_html_content(
         html += """
                     </ul>
                 </div>"""
+
+    # 添加 LLM 总结部分
+    if summary:
+        html += f"""
+            <div class="summary-section">
+                <div class="summary-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                    </svg>
+                    AI 智能总结
+                </div>
+                <div class="summary-content markdown-body" id="summary-content">
+                    {html_escape(summary)}
+                </div>
+                <script>
+                    document.getElementById('summary-content').innerHTML = marked.parse(`{summary.replace('`', '\`')}`);
+                </script>
+            </div>
+        """
 
     # 生成热点词汇统计部分的HTML
     stats_html = ""

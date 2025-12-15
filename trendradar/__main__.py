@@ -18,6 +18,7 @@ from trendradar.context import AppContext
 # 版本号直接定义，避免循环导入
 VERSION = "4.0.0"
 from trendradar.core import load_config
+from trendradar.core.llm import DeepSeekClient
 from trendradar.crawler import DataFetcher
 from trendradar.storage import convert_crawl_results_to_news_data
 
@@ -310,6 +311,24 @@ class NewsAnalyzer:
             global_filters=global_filters,
         )
 
+        # LLM 总结生成
+        summary = ""
+        llm_config = self.ctx.config.get("LLM", {})
+        if llm_config.get("ENABLED") and is_daily_summary:
+            api_key = llm_config.get("API_KEY")
+            if api_key:
+                try:
+                    client = DeepSeekClient(
+                        api_key=api_key,
+                        base_url=llm_config.get("BASE_URL", "https://api.deepseek.com"),
+                        model=llm_config.get("MODEL", "deepseek-chat")
+                    )
+                    summary = client.summarize(stats)
+                except Exception as e:
+                    print(f"LLM 总结生成失败: {e}")
+            else:
+                print("LLM 已启用但未配置 API Key")
+
         # HTML生成（如果启用）
         html_file = None
         if self.ctx.config["STORAGE"]["FORMATS"]["HTML"]:
@@ -322,6 +341,7 @@ class NewsAnalyzer:
                 mode=mode,
                 is_daily_summary=is_daily_summary,
                 update_info=self.update_info if self.ctx.config["SHOW_VERSION_UPDATE"] else None,
+                summary=summary,
             )
 
         return stats, html_file
