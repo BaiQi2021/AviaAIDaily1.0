@@ -611,6 +611,8 @@ def render_html_content(
 
     # 添加 LLM 总结部分
     if summary:
+        # 预处理 summary，避免 f-string 中出现反斜杠
+        js_escaped_summary = summary.replace("`", "\\`")
         html += f"""
             <div class="summary-section">
                 <div class="summary-title">
@@ -623,7 +625,7 @@ def render_html_content(
                     {html_escape(summary)}
                 </div>
                 <script>
-                    document.getElementById('summary-content').innerHTML = marked.parse(`{summary.replace('`', '\`')}`);
+                    document.getElementById('summary-content').innerHTML = marked.parse(`{js_escaped_summary}`);
                 </script>
             </div>
         """
